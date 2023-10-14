@@ -2,26 +2,13 @@ package mail
 
 import (
 	"net/smtp"
-)
-
-const (
-	smtpHost     = "smtp.gmail.com" // SMTPサーバーホスト
-	smtpPort     = "587"              // SMTPポート
-	smtpUsername = "thierry.daniel.henry0302@gmail.com"    // SMTPユーザー名
-	smtpPassword = "sggn qdma tnia mqqw"    // SMTPパスワード
-
-	fromEmail    = "myProject.com" // 送信元メールアドレス
-	toEmail      = "thierry.daniel.henry0302@gmail.com"  // 宛先メールアドレス
+	"NewProjectSearchApp/constants"
 )
 
 func SendEmail(subject, body string) error {
-	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
-	msg := []byte(
-		"To: " + toEmail + "\r\n" +
-		"Subject: " + subject + "\r\n" +
-		"\r\n" + body
-	)
+	auth := smtp.PlainAuth("", constants.SmtpUsername, constants.SmtpPassword, constants.SmtpHost)
+	msg := []byte(body)
 
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, fromEmail, []string{toEmail}, msg)
+	err := smtp.SendMail(constants.SmtpHost+":"+constants.SmtpPort, auth, constants.FromEmail, []string{constants.ToEmail}, msg)
 	return err
 }
