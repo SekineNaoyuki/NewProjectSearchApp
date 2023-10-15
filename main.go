@@ -2,38 +2,30 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"io/ioutil"
+	"strings"
 
 	"NewProjectSearchApp/pkg/mail"
+	"NewProjectSearchApp/pkg/job"
 )
 
-func getJobDetails() (string, error) {
-	resp, err := http.Get("https://freelance.levtech.jp/project/skill-10/") // 案件の詳細URL
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(body), nil
-}
-
 func main() {
-	jobDetails, err := getJobDetails()
+	jobInfoSlice, err := job.GetLevtechDetails()
 	if err != nil {
 		fmt.Println("Error fetching job details:", err)
 		return
 	}
 
-	emailSubject := "Job Details"
-	emailBody := "Here are the job details:\n" + jobDetails
+	emailSubject := "新規案件リスト"
 
-	err := mail.SendEmail("test", "test")
-	if err != nil {
-		fmt.Println("Error sending email:", err)
+	var emailBody strings.Builder
+	for _, jobInfo := range jobInfoSlice {
+		emailBody.WriteString(jobInfo.Name + "\n")
+		emailBody.WriteString(jobInfo.URL + "\n\n")
+	}
+
+	sendErr  := mail.SendEmail(emailSubject, emailBody.String())
+	if sendErr  != nil {
+		fmt.Println("Error sending email:", sendErr )
 		return
 	}
 

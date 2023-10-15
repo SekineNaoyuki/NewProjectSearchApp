@@ -1,16 +1,12 @@
 package constants
 
 const (
-	// SMTPサーバーホスト
-	SmtpHost     = "smtp.gmail.com" 
-	// SMTPポート
-	SmtpPort     = "587"
-	// SMTPユーザー名
-	SmtpUsername = "thierry.daniel.henry0302@gmail.com"
-	// SMTPパスワード
-	SmtpPassword = "sggn qdma tnia mqqw"
-	// 送信元メールアドレス
-	FromEmail = "myProject.com"
-	// 宛先メールアドレス
-	ToEmail   = "thierry.daniel.henry0302@gmail.com"
+	SmtpHost = "smtp.gmail.com" // SMTPサーバーホスト
+	SmtpPort = "587" // SMTPポート
+	SmtpUsername = "thierry.daniel.henry0302@gmail.com"	// SMTPユーザー名
+	SmtpPassword = "sggn qdma tnia mqqw" // SMTPパスワード
+	FromEmail = "myProject.com"	// 送信元メールアドレス
+	ToEmail = "thierry.daniel.henry0302@gmail.com" // 宛先メールアドレス
+
+	UnitPrice = 700000 // 案件単価（～以上）
 )
