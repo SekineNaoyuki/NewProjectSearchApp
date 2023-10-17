@@ -12,6 +12,48 @@ type JobInfo struct {
     Name, URL string
 }
 
+// フリーランススタート
+func GetFreelanceStartDetails() ([]JobInfo, error) {
+    var jobInfoSlice []JobInfo
+
+    // サイト情報取得
+    resp, err := http.Get("https://fa-works.com/offerlist/?skills=74")
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    doc, err := goquery.NewDocumentFromReader(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    doc.Find("div.border-b-gray-300 div.bg-primary.bg-opacity-5.border-indigo-100.mb-8.rounded").Each(func(i int, s *goquery.Selection) {
+
+        pElements := s.Find("p.line-clamp-1")
+		priceText := pElements.Eq(0).Text()
+		priceText = strings.Replace(priceText, ",", "", -1)
+        priceText = strings.Replace(priceText, " 〜", "", -1)
+        priceText = strings.Replace(priceText, "円/月", "", -1)
+		price, _ := strconv.Atoi(priceText)
+
+        secondPText := pElements.Eq(1).Text()
+
+		// 新規案件 && リモート案件 && 指定単価以上
+        if
+            secondPText == "フルリモート" &&
+			price >= constants.UnitPrice {
+
+            url, _ := s.Find("h1 a").Attr("href")
+            name := s.Find("h1 a").Text()
+            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://fa-works.com"+url})
+        }
+    })
+
+    return jobInfoSlice, nil
+}
+
 // レバテック
 func GetLevtechDetails() ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
