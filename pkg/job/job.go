@@ -92,3 +92,41 @@ func GetLevtechDetails() ([]JobInfo, error) {
 
     return jobInfoSlice, nil
 }
+
+// AKKODIS
+func GetAkkodisDetails() ([]JobInfo, error) {
+    var jobInfoSlice []JobInfo
+
+    // サイト情報取得
+    resp, err := http.Get("https://freelance.akkodis.co.jp/projects/?skill=446&sort=created&direction=desc")
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    doc, err := goquery.NewDocumentFromReader(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    doc.Find("ul.main-offer-list li.main-offer-list-item.new_project").Each(func(i int, s *goquery.Selection) {
+
+		priceText := s.Find("p.main-offer-list-item-overview-reward em").First().Text()
+		priceText = strings.Replace(priceText, ",", "", -1)
+		price, _ := strconv.Atoi(priceText)
+
+		// 新規案件 && リモート案件 && 指定単価以上
+        if
+            (s.Find("div.main-offer-list-item-overview-table-inner.lh-2:contains('リモート')").Length() > 0 ||
+             s.Find("div.upper a h2:contains('リモート')").Length() > 0 ) &&
+			price >= constants.UnitPrice {
+				
+            url, _ := s.Find("div.upper a").Attr("href")
+            name := s.Find("div.upper a h2").Text()
+            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.akkodis.co.jp/"+url})
+        }
+    })
+
+    return jobInfoSlice, nil
+}

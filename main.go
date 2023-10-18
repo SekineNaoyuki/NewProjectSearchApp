@@ -12,35 +12,47 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	var freelancestartJobInfoSlice, levtechJobInfoSlice []job.JobInfo
-    var freelancestartErr, levtechErr error
+	var freelancestartJobInfoSlice []job.JobInfo
+	var levtechJobInfoSlice []job.JobInfo
+	var akkodisJobInfoSlice []job.JobInfo
+	var freelancestartErr error
+	var levtechErr error
+	var akkodisErr error
+
+	// 構造体作成
+	dataSources := []struct {
+		jobInfoSlice *[]job.JobInfo
+		errPtr *error
+		fetchFunc func() ([]job.JobInfo, error)
+		title string
+	}{
+		{&freelancestartJobInfoSlice, &freelancestartErr, job.GetFreelanceStartDetails, "フリーランススタート"},
+		{&levtechJobInfoSlice, &levtechErr, job.GetLevtechDetails, "レバテック"},
+		{&akkodisJobInfoSlice, &akkodisErr, job.GetAkkodisDetails, "AKKODIS"},
+	}
 
 	// 並列でデータを取得
-	wg.Add(2)
-	go fetchDataInParallel(&wg, &freelancestartJobInfoSlice, &freelancestartErr, job.GetFreelanceStartDetails)
-    go fetchDataInParallel(&wg, &levtechJobInfoSlice, &levtechErr, job.GetLevtechDetails)
-    wg.Wait()
-	
-	// 取得したデータのエラー判定
-	if checkAndPrintError(freelancestartErr, "Error fetching freelance job details:") {
-		return
+	wg.Add(len(dataSources))
+	for _, source := range dataSources {
+		go fetchDataInParallel(&wg, source.jobInfoSlice, source.errPtr, source.fetchFunc)
 	}
-	if checkAndPrintError(levtechErr, "Error fetching Levtech job details:") {
-		return
+	wg.Wait()
+
+	// 取得したデータのエラー判定
+	for _, source := range dataSources {
+		if checkAndPrintError(*source.errPtr, "Error fetching "+source.title+" job details:") {
+			return
+		}
 	}
 
 	// 件名と本文作成
 	emailSubject := "新規案件リスト"
-	jobInfoSlices := map[string][]job.JobInfo{
-		"フリーランススタート": freelancestartJobInfoSlice,
-		"レバテック": levtechJobInfoSlice,
-	}
-	emailBody := buildEmailBody(jobInfoSlices)
+	emailBody := buildEmailBody(dataSources)
 
 	// メール送信
-	sendErr  := mail.SendEmail(emailSubject, emailBody)
-	if sendErr  != nil {
-		fmt.Println("Error sending email:", sendErr )
+	sendErr := mail.SendEmail(emailSubject, emailBody)
+	if sendErr != nil {
+		fmt.Println("Error sending email:", sendErr)
 		return
 	}
 }
@@ -68,15 +80,20 @@ func checkAndPrintError(err error, message string) bool {
 }
 
 // 本文作成
-func buildEmailBody(jobInfoSlices map[string][]job.JobInfo) string {
+func buildEmailBody(dataSources []struct {
+	jobInfoSlice *[]job.JobInfo
+	errPtr *error
+	fetchFunc func() ([]job.JobInfo, error)
+	title string }) string {
+		
     var emailBody strings.Builder
-    for category, jobInfoSlice := range jobInfoSlices {
-        emailBody.WriteString("■" + category + "\n\n")
-        for _, jobInfo := range jobInfoSlice {
+    for _, source := range dataSources {
+        emailBody.WriteString("■" + source.title + "\n\n")
+        for _, jobInfo := range *source.jobInfoSlice {
             emailBody.WriteString("　" + jobInfo.Name + "\n")
             emailBody.WriteString("　" + jobInfo.URL + "\n\n")
         }
-		emailBody.WriteString("\n")
+        emailBody.WriteString("\n")
     }
     return emailBody.String()
 }
