@@ -47,7 +47,7 @@ func GetFreelanceStartDetails() ([]JobInfo, error) {
 
             url, _ := s.Find("h1 a").Attr("href")
             name := s.Find("h1 a").Text()
-            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://fa-works.com"+url})
+            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://fa-works.com/"+url})
         }
     })
 
@@ -125,6 +125,43 @@ func GetAkkodisDetails() ([]JobInfo, error) {
             url, _ := s.Find("div.upper a").Attr("href")
             name := s.Find("div.upper a h2").Text()
             jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.akkodis.co.jp/"+url})
+        }
+    })
+
+    return jobInfoSlice, nil
+}
+
+// geechs
+func GetGeechsDetails() ([]JobInfo, error) {
+    var jobInfoSlice []JobInfo
+
+    // サイト情報取得
+    resp, err := http.Get("https://geechs-job.com/project/go")
+    if err != nil {
+        return nil, err
+    }
+
+    defer resp.Body.Close()
+
+    doc, err := goquery.NewDocumentFromReader(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    doc.Find("ul.p-article-project li.c-card.p-card-project").Each(func(i int, s *goquery.Selection) {
+
+		priceText := s.Find("span.c-text_price").First().Text()
+        priceText += "0000"
+		price, _ := strconv.Atoi(priceText)
+
+		// 新規案件 && リモート案件 && 指定単価以上
+        if
+             s.Find("span.c-newLabel:contains('New')").Length() > 0 &&
+			price >= constants.UnitPrice {
+				
+            url, _ := s.Find("a.c-card_title_link").Attr("href")
+            name := s.Find("a.c-card_title_link").Text()
+            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://geechs-job.com/"+url})
         }
     })
 
