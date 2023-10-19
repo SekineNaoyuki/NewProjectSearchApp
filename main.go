@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"NewProjectSearchApp/pkg/mail"
@@ -15,42 +14,44 @@ func main() {
 	var freelancestartJobInfoSlice []job.JobInfo
 	var levtechJobInfoSlice []job.JobInfo
 	var akkodisJobInfoSlice []job.JobInfo
+	var geechsJobInfoSlice []job.JobInfo
+
 	var freelancestartErr error
 	var levtechErr error
 	var akkodisErr error
+	var geechsErr error
 
 	// 構造体作成
 	dataSources := []struct {
-		jobInfoSlice *[]job.JobInfo
-		errPtr *error
-		fetchFunc func() ([]job.JobInfo, error)
-		title string
+		JobInfoSlice *[]job.JobInfo
+		ErrPtr *error
+		FetchFunc func() ([]job.JobInfo, error)
+		Title string
 	}{
 		{&freelancestartJobInfoSlice, &freelancestartErr, job.GetFreelanceStartDetails, "フリーランススタート"},
 		{&levtechJobInfoSlice, &levtechErr, job.GetLevtechDetails, "レバテック"},
 		{&akkodisJobInfoSlice, &akkodisErr, job.GetAkkodisDetails, "AKKODIS"},
+		{&geechsJobInfoSlice, &geechsErr, job.GetGeechsDetails, "Geechs"},
 	}
 
 	// 並列でデータを取得
 	wg.Add(len(dataSources))
 	for _, source := range dataSources {
-		go fetchDataInParallel(&wg, source.jobInfoSlice, source.errPtr, source.fetchFunc)
+		go fetchDataInParallel(&wg, source.JobInfoSlice, source.ErrPtr, source.FetchFunc)
 	}
 	wg.Wait()
 
 	// 取得したデータのエラー判定
 	for _, source := range dataSources {
-		if checkAndPrintError(*source.errPtr, "Error fetching "+source.title+" job details:") {
+		if checkAndPrintError(*source.ErrPtr, "Error fetching "+source.Title+" job details:") {
 			return
 		}
 	}
 
-	// 件名と本文作成
-	emailSubject := "新規案件リスト"
-	emailBody := buildEmailBody(dataSources)
+	emailBody := mail.BuildEmailBody(dataSources)
 
 	// メール送信
-	sendErr := mail.SendEmail(emailSubject, emailBody)
+	sendErr := mail.SendEmail(emailBody)
 	if sendErr != nil {
 		fmt.Println("Error sending email:", sendErr)
 		return
@@ -77,23 +78,4 @@ func checkAndPrintError(err error, message string) bool {
         return true
     }
     return false
-}
-
-// 本文作成
-func buildEmailBody(dataSources []struct {
-	jobInfoSlice *[]job.JobInfo
-	errPtr *error
-	fetchFunc func() ([]job.JobInfo, error)
-	title string }) string {
-		
-    var emailBody strings.Builder
-    for _, source := range dataSources {
-        emailBody.WriteString("■" + source.title + "\n\n")
-        for _, jobInfo := range *source.jobInfoSlice {
-            emailBody.WriteString("　" + jobInfo.Name + "\n")
-            emailBody.WriteString("　" + jobInfo.URL + "\n\n")
-        }
-        emailBody.WriteString("\n")
-    }
-    return emailBody.String()
 }
