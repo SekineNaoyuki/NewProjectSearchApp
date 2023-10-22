@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"sync"
-
+	"database/sql"
+    _ "github.com/lib/pq"
+	"NewProjectSearchApp/database"
 	"NewProjectSearchApp/pkg/mail"
 	"NewProjectSearchApp/pkg/job"
 )
@@ -21,11 +23,17 @@ func main() {
 	var akkodisErr error
 	var geechsErr error
 
+	// DB接続
+	db, dbErr := database.Connect()
+    if dbErr != nil {
+        fmt.Println("DB接続に失敗しました:", dbErr)
+    }
+
 	// 構造体作成
 	dataSources := []struct {
 		JobInfoSlice *[]job.JobInfo
 		ErrPtr *error
-		FetchFunc func() ([]job.JobInfo, error)
+		FetchFunc func(*sql.DB) ([]job.JobInfo, error)
 		Title string
 	}{
 		{&freelancestartJobInfoSlice, &freelancestartErr, job.GetFreelanceStartDetails, "フリーランススタート"},
@@ -37,7 +45,7 @@ func main() {
 	// 並列でデータを取得
 	wg.Add(len(dataSources))
 	for _, source := range dataSources {
-		go fetchDataInParallel(&wg, source.JobInfoSlice, source.ErrPtr, source.FetchFunc)
+		go fetchDataInParallel(&wg, source.JobInfoSlice, source.ErrPtr, source.FetchFunc, db)
 	}
 	wg.Wait()
 
@@ -48,21 +56,22 @@ func main() {
 		}
 	}
 
+	// 本文作成
 	emailBody := mail.BuildEmailBody(dataSources)
 
 	// メール送信
 	sendErr := mail.SendEmail(emailBody)
 	if sendErr != nil {
-		fmt.Println("Error sending email:", sendErr)
+		fmt.Println("メール送信に失敗しました:", sendErr)
 		return
 	}
 }
 
 // 並列処理
-func fetchDataInParallel(wg *sync.WaitGroup, resultSlice *[]job.JobInfo, errPtr *error, fetchFunc func() ([]job.JobInfo, error)) {
+func fetchDataInParallel(wg *sync.WaitGroup, resultSlice *[]job.JobInfo, errPtr *error, fetchFunc func(*sql.DB) ([]job.JobInfo, error), db *sql.DB) {
     defer wg.Done()
 
-    dataSlice, err := fetchFunc()
+    dataSlice, err := fetchFunc(db)
     if err != nil {
         *errPtr = err
         return

@@ -4,8 +4,11 @@ import (
     "net/http"
 	"strings"
 	"strconv"
+    "database/sql"
+    _ "github.com/lib/pq"
     "github.com/PuerkitoBio/goquery"
 	"NewProjectSearchApp/constants"
+    "NewProjectSearchApp/database"
 )
 
 type JobInfo struct {
@@ -13,7 +16,7 @@ type JobInfo struct {
 }
 
 // フリーランススタート
-func GetFreelanceStartDetails() ([]JobInfo, error) {
+func GetFreelanceStartDetails(db *sql.DB) ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
 
     // サイト情報取得
@@ -47,7 +50,10 @@ func GetFreelanceStartDetails() ([]JobInfo, error) {
 
             url, _ := s.Find("h1 a").Attr("href")
             name := s.Find("h1 a").Text()
-            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://fa-works.com/"+url})
+            if database.IsNewJobUnique(db, name) {
+                jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://fa-works.com/"+url})
+                database.InsertJob(db, name, url)
+            }
         }
     })
 
@@ -55,7 +61,7 @@ func GetFreelanceStartDetails() ([]JobInfo, error) {
 }
 
 // レバテック
-func GetLevtechDetails() ([]JobInfo, error) {
+func GetLevtechDetails(db *sql.DB) ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
 
     // サイト情報取得
@@ -86,7 +92,10 @@ func GetLevtechDetails() ([]JobInfo, error) {
 				
             url, _ := s.Find("a.js-link_rel").Attr("href")
             name := s.Find("a.js-link_rel").Text()
-            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.levtech.jp/"+url})
+            if database.IsNewJobUnique(db, name) {
+                jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.levtech.jp/"+url})
+                database.InsertJob(db, name, url)
+            }
         }
     })
 
@@ -94,7 +103,7 @@ func GetLevtechDetails() ([]JobInfo, error) {
 }
 
 // AKKODIS
-func GetAkkodisDetails() ([]JobInfo, error) {
+func GetAkkodisDetails(db *sql.DB) ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
 
     // サイト情報取得
@@ -124,7 +133,10 @@ func GetAkkodisDetails() ([]JobInfo, error) {
 				
             url, _ := s.Find("div.upper a").Attr("href")
             name := s.Find("div.upper a h2").Text()
-            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.akkodis.co.jp/"+url})
+            if database.IsNewJobUnique(db, name) {
+                jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://freelance.akkodis.co.jp/"+url})
+                database.InsertJob(db, name, url)
+            }
         }
     })
 
@@ -132,7 +144,7 @@ func GetAkkodisDetails() ([]JobInfo, error) {
 }
 
 // geechs
-func GetGeechsDetails() ([]JobInfo, error) {
+func GetGeechsDetails(db *sql.DB) ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
 
     // サイト情報取得
@@ -161,7 +173,10 @@ func GetGeechsDetails() ([]JobInfo, error) {
 				
             url, _ := s.Find("a.c-card_title_link").Attr("href")
             name := s.Find("a.c-card_title_link").Text()
-            jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://geechs-job.com/"+url})
+            if database.IsNewJobUnique(db, name) {
+                jobInfoSlice = append(jobInfoSlice, JobInfo{Name: name, URL: "https://geechs-job.com/"+url})
+                database.InsertJob(db, name, url)
+            }
         }
     })
 

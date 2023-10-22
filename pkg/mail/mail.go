@@ -3,6 +3,8 @@ package mail
 import (
 	"net/smtp"
 	"strings"
+	"database/sql"
+    _ "github.com/lib/pq"
 	"NewProjectSearchApp/constants"
 	"NewProjectSearchApp/pkg/job"
 )
@@ -38,7 +40,7 @@ func SendEmail(body string) error {
 func BuildEmailBody(dataSources []struct {
 	JobInfoSlice *[]job.JobInfo
 	ErrPtr *error
-	FetchFunc func() ([]job.JobInfo, error)
+	FetchFunc func(*sql.DB) ([]job.JobInfo, error)
 	Title string }) string {
 
     var emailBody strings.Builder
@@ -50,5 +52,6 @@ func BuildEmailBody(dataSources []struct {
         }
         emailBody.WriteString("\n")
     }
+	
     return emailBody.String()
 }

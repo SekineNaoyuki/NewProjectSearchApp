@@ -9,4 +9,10 @@ const (
 	ToEmail = "thierry.daniel.henry0302@gmail.com" // 宛先メールアドレス
 
 	UnitPrice = 700000 // 案件単価（～以上）
+
+	DbUser = "postgres"
+	DbName = "postgres"
+	DbPass = "Naoyuki0302"
+	DbHost = "3.27.239.189"
+	DbPort = "5432"
 )
