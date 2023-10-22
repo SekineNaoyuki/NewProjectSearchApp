@@ -60,7 +60,7 @@ func main() {
 	emailBody := mail.BuildEmailBody(dataSources)
 
 	// メール送信
-	sendErr := mail.SendEmail(emailBody)
+	sendErr := mail.SendEmail(emailBody, db)
 	if sendErr != nil {
 		fmt.Println("メール送信に失敗しました:", sendErr)
 		return

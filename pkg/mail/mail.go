@@ -5,17 +5,15 @@ import (
 	"strings"
 	"database/sql"
     _ "github.com/lib/pq"
-	"NewProjectSearchApp/constants"
 	"NewProjectSearchApp/pkg/job"
 )
 
-func SendEmail(body string) error {
+func SendEmail(body string, db *sql.DB) error {
+	fromEmail, toEmail, subject, smtpUsername, smtpPassword, smtpHost, smtpPort := GetMailInfoFromDB(db)
 
-	subject := "新規案件リスト"
-		
 	headers := map[string]string{
-		"From": constants.FromEmail,
-		"To": constants.ToEmail,
+		"From": fromEmail,
+		"To": toEmail,
 		"Subject": subject,
 		"MIME-Version": "1.0",
 		"Content-Type": "text/plain; charset=\"utf-8\"",
@@ -30,9 +28,9 @@ func SendEmail(body string) error {
 	// メール本文とヘッダーを結合
 	message := msgHeaders + "\r\n" + body
 
-	auth := smtp.PlainAuth("", constants.SmtpUsername, constants.SmtpPassword, constants.SmtpHost)
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
 
-	err := smtp.SendMail(constants.SmtpHost+":"+constants.SmtpPort, auth, constants.FromEmail, []string{constants.ToEmail}, []byte(message))
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, fromEmail, []string{toEmail}, []byte(message))
 	return err
 }
 
@@ -54,4 +52,11 @@ func BuildEmailBody(dataSources []struct {
     }
 	
     return emailBody.String()
+}
+
+func GetMailInfoFromDB(db *sql.DB) (string, string, string, string, string, string, string) {
+    var fromEmail, toEmail, subject, smtpUsername, smtpPassword, smtpHost, smtpPort string
+    db.QueryRow("SELECT from_email, to_email, subject, smtp_username, smtp_password, smtp_host, smtp_port FROM mail").Scan(&fromEmail, &toEmail, &subject, &smtpUsername, &smtpPassword, &smtpHost, &smtpPort)
+
+    return fromEmail, toEmail, subject, smtpUsername, smtpPassword, smtpHost, smtpPort
 }
