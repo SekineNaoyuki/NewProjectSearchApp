@@ -56,14 +56,27 @@ func main() {
 		}
 	}
 
-	// 本文作成
-	emailBody := mail.BuildEmailBody(dataSources)
+	// JobInfoSliceが空の場合、要素を削除
+	for i := 0; i < len(dataSources); {
+		if len(*dataSources[i].JobInfoSlice) == 0 {
+			dataSources = append(dataSources[:i], dataSources[i+1:]...)
+		} else {
+			i++
+		}
+	}
 
-	// メール送信
-	sendErr := mail.SendEmail(emailBody, db)
-	if sendErr != nil {
-		fmt.Println("メール送信に失敗しました:", sendErr)
-		return
+	if len(dataSources) > 0 {
+		// 本文作成
+		emailBody := mail.BuildEmailBody(dataSources)
+
+		// メール送信
+		sendErr := mail.SendEmail(emailBody, db)
+		if sendErr != nil {
+			fmt.Println("メール送信に失敗しました:", sendErr)
+			return
+		}
+	} else {
+		fmt.Println("新規案件がありません")
 	}
 }
 
@@ -77,7 +90,11 @@ func fetchDataInParallel(wg *sync.WaitGroup, resultSlice *[]job.JobInfo, errPtr 
         return
     }
 
-    *resultSlice = append(*resultSlice, dataSlice...)
+	if len(dataSlice) == 0 {
+        return
+    } else {
+		*resultSlice = append(*resultSlice, dataSlice...)
+	}
 }
 
 // エラーチェック
