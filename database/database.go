@@ -34,6 +34,30 @@ func Connect() (*sql.DB, error) {
     return db, nil
 }
 
+func TestConnect() (*sql.DB, error) {
+	connStr :=
+		"user=" + constants.DbUser + 
+		" dbname=" + constants.TestDbName + 
+		" password=" + constants.DbPass + 
+		" host=" + constants.DbHost + 
+		" port=" + constants.DbPort +
+		" sslmode=disable"
+
+    // データベースに接続
+    db, err := sql.Open("postgres", connStr)
+    if err != nil {
+        return nil, err
+    }
+
+    // データベース接続を確立
+    err = db.Ping()
+    if err != nil {
+        return nil, err
+    }
+
+    return db, nil
+}
+
 func IsNewJobUnique(db *sql.DB, name string) bool {
 	mutex.Lock()
 	defer mutex.Unlock()
