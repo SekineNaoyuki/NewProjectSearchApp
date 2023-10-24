@@ -8,4 +8,6 @@ const (
 	DbPass = "Naoyuki0302"
 	DbHost = "3.27.239.189"
 	DbPort = "5432"
+
+	TestDbName = "test_postgres"
 )
