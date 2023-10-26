@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	golang.org/x/net v0.7.0 // indirect
 )
