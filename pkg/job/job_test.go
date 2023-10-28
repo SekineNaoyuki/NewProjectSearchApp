@@ -6,7 +6,7 @@ import (
 	"NewProjectSearchApp/database"
 )
 
-func TestGetFreelanceStartDetails(t *testing.T) {
+func TestGetFaworksDetails(t *testing.T) {
 	// テストDB接続
 	TestDb, dbErr := database.TestConnect()
     if dbErr != nil {
@@ -14,16 +14,16 @@ func TestGetFreelanceStartDetails(t *testing.T) {
     }
 
     // テスト対象の関数を呼び出す
-    jobInfoSlice, err := GetFreelanceStartDetails(TestDb)
+    jobInfoSlice, err := GetFaworksDetails(TestDb)
 
     // テストケースを記述し、期待される結果と比較
     if err != nil {
-        t.Errorf("GetFreelanceStartDetailsの実行に失敗しました: %v", err)
+        t.Errorf("GetFaworksDetailsの実行に失敗しました: %v", err)
     }
 
     // テスト結果を評価
     if len(jobInfoSlice) == 0 {
-        t.Errorf("GetFreelanceStartDetailsの実行結果のスライスが空です")
+        t.Errorf("GetFaworksDetailsの実行結果のスライスが空です")
     }
 }
 

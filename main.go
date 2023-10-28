@@ -13,12 +13,12 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	var freelancestartJobInfoSlice []job.JobInfo
+	var faworksJobInfoSlice []job.JobInfo
 	var levtechJobInfoSlice []job.JobInfo
 	var akkodisJobInfoSlice []job.JobInfo
 	var geechsJobInfoSlice []job.JobInfo
 
-	var freelancestartErr error
+	var faworksErr error
 	var levtechErr error
 	var akkodisErr error
 	var geechsErr error
@@ -36,7 +36,7 @@ func main() {
 		FetchFunc func(*sql.DB) ([]job.JobInfo, error)
 		Title string
 	}{
-		{&freelancestartJobInfoSlice, &freelancestartErr, job.GetFreelanceStartDetails, "フリーランススタート"},
+		{&faworksJobInfoSlice, &faworksErr, job.GetFaworksDetails, "FAworks"},
 		{&levtechJobInfoSlice, &levtechErr, job.GetLevtechDetails, "レバテック"},
 		{&akkodisJobInfoSlice, &akkodisErr, job.GetAkkodisDetails, "AKKODIS"},
 		{&geechsJobInfoSlice, &geechsErr, job.GetGeechsDetails, "Geechs"},
@@ -51,7 +51,7 @@ func main() {
 
 	// 取得したデータのエラー判定
 	for _, source := range dataSources {
-		if checkAndPrintError(*source.ErrPtr, "Error fetching "+source.Title+" job details:") {
+		if checkAndPrintError(*source.ErrPtr, source.Title+"のジョブ詳細を取得中にエラーが発生しました:") {
 			return
 		}
 	}

@@ -34,7 +34,7 @@ func TestBuildEmailBody(t *testing.T) {
 
     // 結果を検証
     if result != expected {
-        t.Errorf("Expected:\n%s\n\nresult:\n%s", expected, result)
+        t.Errorf("期待値:\n%s\n\n実際の結果:\n%s", expected, result)
     }
 }
 
@@ -58,30 +58,30 @@ func TestGetMailInfoFromDB(t *testing.T) {
     expectedSmtpPort := "587"
 
     if fromEmail != expectedFromEmail {
-        t.Errorf("Expected fromEmail %s, but got %s", expectedFromEmail, fromEmail)
+        t.Errorf("fromEmailが予想された値 %s ではなく、実際の値は %s です", expectedFromEmail, fromEmail)
     }
-
+    
     if toEmail != expectedToEmail {
-        t.Errorf("Expected toEmail %s, but got %s", expectedToEmail, toEmail)
+        t.Errorf("toEmailが予想された値 %s ではなく、実際の値は %s です", expectedToEmail, toEmail)
     }
-
+    
     if subject != expectedSubject {
-        t.Errorf("Expected subject %s, but got %s", expectedSubject, subject)
+        t.Errorf("subjectが予想された値 %s ではなく、実際の値は %s です", expectedSubject, subject)
     }
-
+    
     if smtpUsername != expectedSmtpUsername {
-        t.Errorf("Expected smtpUsername %s, but got %s", expectedSmtpUsername, smtpUsername)
+        t.Errorf("smtpUsernameが予想された値 %s ではなく、実際の値は %s です", expectedSmtpUsername, smtpUsername)
     }
-
+    
     if smtpPassword != expectedSmtpPassword {
-        t.Errorf("Expected smtpPassword %s, but got %s", expectedSmtpPassword, smtpPassword)
+        t.Errorf("smtpPasswordが予想された値 %s ではなく、実際の値は %s です", expectedSmtpPassword, smtpPassword)
     }
-
+    
     if smtpHost != expectedSmtpHost {
-        t.Errorf("Expected smtpHost %s, but got %s", expectedSmtpHost, smtpHost)
+        t.Errorf("smtpHostが予想された値 %s ではなく、実際の値は %s です", expectedSmtpHost, smtpHost)
     }
-
+    
     if smtpPort != expectedSmtpPort {
-        t.Errorf("Expected smtpPort %s, but got %s", expectedSmtpPort, smtpPort)
+        t.Errorf("smtpPortが予想された値 %s ではなく、実際の値は %s です", expectedSmtpPort, smtpPort)
     }
 }

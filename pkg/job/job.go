@@ -15,8 +15,8 @@ type JobInfo struct {
     Name, URL string
 }
 
-// フリーランススタート
-func GetFreelanceStartDetails(db *sql.DB) ([]JobInfo, error) {
+// FAworks
+func GetFaworksDetails(db *sql.DB) ([]JobInfo, error) {
     var jobInfoSlice []JobInfo
 
     // サイト情報取得
