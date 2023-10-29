@@ -8,6 +8,7 @@ import (
 	"NewProjectSearchApp/pkg/job"
 )
 
+// メール送信
 func SendEmail(body string, db *sql.DB) error {
 	fromEmail, toEmail, subject, smtpUsername, smtpPassword, smtpHost, smtpPort := GetMailInfoFromDB(db)
 
@@ -54,6 +55,7 @@ func BuildEmailBody(dataSources []struct {
     return emailBody.String()
 }
 
+// メール設定取得
 func GetMailInfoFromDB(db *sql.DB) (string, string, string, string, string, string, string) {
     var fromEmail, toEmail, subject, smtpUsername, smtpPassword, smtpHost, smtpPort string
     db.QueryRow("SELECT from_email, to_email, subject, smtp_username, smtp_password, smtp_host, smtp_port FROM mail").Scan(&fromEmail, &toEmail, &subject, &smtpUsername, &smtpPassword, &smtpHost, &smtpPort)

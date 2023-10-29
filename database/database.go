@@ -10,6 +10,7 @@ import (
 
 var mutex sync.Mutex
 
+// DB接続
 func Connect() (*sql.DB, error) {
 	connStr :=
 		"user=" + constants.DbUser + 
@@ -34,6 +35,7 @@ func Connect() (*sql.DB, error) {
     return db, nil
 }
 
+// テストDB接続
 func TestConnect() (*sql.DB, error) {
 	connStr :=
 		"user=" + constants.DbUser + 
@@ -58,6 +60,7 @@ func TestConnect() (*sql.DB, error) {
     return db, nil
 }
 
+// 通知済み判定
 func IsNewJobUnique(db *sql.DB, name string) bool {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -73,6 +76,7 @@ func IsNewJobUnique(db *sql.DB, name string) bool {
     return count == 0
 }
 
+// 案件インサート
 func InsertJob(db *sql.DB, name string, url string) {
     mutex.Lock()
     defer mutex.Unlock()
